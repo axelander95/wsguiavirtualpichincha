@@ -28,11 +28,25 @@
 				$array = array('ok' => (int) $response);
 				echo json_encode($array);
 				break;
+			case 'carga_categorias':
+				$response = carga_categorias();
+				echo $response;
+				break;
 			default:
 				echo 'Solicitud incorrecta.';
 				break;
 		}
 	}
+		function carga_categorias (){
+			$query = 'SELECT * FROM tb_categoria WHERE estado = 1';
+			$result = execute_sql($query);
+			$result = execute_sql ($query);
+			$json = array();
+			if (mysqli_num_rows($result) > 0)
+				while ($row = mysqli_fetch_assoc($result))
+					$json[] = $row;
+			return json_encode($json);
+		}
 		function inserta_usuario ($id_canton, $nombre, $correo_electronico, $nombre_usuario, $contrasena, $tipo_usuario){
 			$query = 'INSERT INTO tb_usuario (id_canton, nombre, correo_electronico, nombre_usuario, contrasena, fecha_registro, tipo_usuario,
 			estado) VALUES (' . $id_canton . ', \'' . $nombre . '\', \'' . $correo_electronico . '\', \'' . $nombre_usuario . '\',
@@ -70,5 +84,46 @@
 				' . $valor . ')';
 			$result = execute_sql($query);
 			return $result;
+		}
+		function carga_paises () {
+			$query = 'SELECT * FROM tb_pais WHERE estado = 1';
+			$result = execute_sql($query);
+			$json = array();
+			if (mysqli_num_rows($result) > 0)
+				while ($row = mysqli_fetch_assoc($result))
+					$json [] = $row;
+			return json_encode($json);
+		}
+		function carga_provincias ($id_pais){
+			$query = 'SELECT * FROM tb_provincia WHERE id_pais = ' . $id_pais . ' AND estado = 1';
+			$result = execute_sql($query);
+			$json = array();
+			if (mysqli_num_rows($result) > 0)
+				while ($row = mysqli_fetch_assoc($result))
+					$json [] = $row;
+			return json_encode($json);
+		}
+		function carga_cantones ($id_provincia){
+			$query = 'SELECT * FROM tb_canton WHERE estado = 1 AND id_provincia = ' . $id_provincia;
+			$result = execute_sql($query);
+			$json = array();
+			if (mysqli_num_rows($result) > 0)
+				while ($row = mysqli_fetch_assoc($result))
+					$json [] = $row;
+			return json_encode($json);
+		}
+		function carga_sitio_turistico ($id_sitio_turistico) {
+		}
+		function carga_sitios_turisticos_por_categoria ($id_categoria) {
+			$query = 'SELECT * FROM tb_sitio_turistico WHERE estado = 1 AND id_categoria = ' . $id_categoria;
+			$result = execute_sql($query);
+			$json = array();
+			if (mysqli_num_rows($result) > 0)
+				while ($row = mysqli_fetch_assoc($result))
+					$json [] = $row;
+			return json_encode($json);
+		}
+		function carga_sitios_turisticos (){
+			
 		}
 ?>

@@ -14,12 +14,12 @@
 				echo $response;
 				break;
 			case 'carga_marcador_mapa':
-				$response = carga_marcador_mapa();
+				$response = carga_marcador_mapa($_REQUEST['id_categoria']);
 				$json = array();
 				foreach($response as $data)
 				{
 					$mydata = unserialize($data);
-					$json[] = array('titulo'=>$mydata['name'], 'descripcion'=>$mydata['description'], 'latitud'=>$mydata['latitude'], 'longitud'=>$mydata['longitude']);
+					$json[] = array('titulo'=>$mydata['name'], 'descripcion'=>$mydata['address'], 'latitud'=>$mydata['latitude'], 'longitud'=>$mydata['longitude']);
 				}
 				echo json_encode($json);
 				break;
@@ -45,8 +45,10 @@
 			$result = execute_sql ($query);
 			return $result;
 		}
-		function carga_marcador_mapa () {
-			$query = 'SELECT meta_value FROM tb_postmeta INNER JOIN tb_posts ON tb_posts.ID = tb_postmeta.post_id WHERE meta_key = \'cpm_point\' AND tb_posts.post_status = \'publish\'';
+		function carga_marcador_mapa ($id_categoria) {
+			$query = 'SELECT meta_value FROM tb_postmeta INNER JOIN tb_posts ON tb_posts.ID = tb_postmeta.post_id INNER JOIN tb_term_relationships ON tb_term_relationships.object_id = tb_posts.ID 
+			INNER JOIN tb_term_taxonomy ON tb_term_relationships.term_taxonomy_id = tb_term_taxonomy.term_taxonomy_id 
+			INNER JOIN tb_terms ON tb_terms.term_id = tb_term_taxonomy.term_id WHERE meta_key = \'cpm_point\' AND tb_posts.post_status = \'publish\' AND tb_terms.term_id = ' . $id_categoria;
 			$result = execute_sql($query);
 			$data = array();
 			if (mysqli_num_rows($result) > 0)

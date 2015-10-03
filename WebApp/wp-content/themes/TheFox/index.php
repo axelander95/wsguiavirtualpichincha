@@ -118,7 +118,7 @@ echo !empty( $custom_blog_css ) ? $custom_blog_css : '';
 <div id="fw_c" class="clearfix index_page">
     <?php } ?>  
       <?php if (have_posts()) : ?>
-      <?php while (have_posts()) : the_post(); ?>
+      <?php while (have_posts()) : the_post(); if(function_exists('the_ratings')) { the_ratings(); } ?>
       <?php if ( is_sticky() ) {?>
    <div class="post ajax_post sticky_post" <?php post_class(); ?>>
 <?php } else { ?>

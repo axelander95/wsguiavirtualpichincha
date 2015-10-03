@@ -317,7 +317,7 @@ do_action( '__after_page_title' );
 <div id="fw_c" class="fw_single_post clearfix">
     <?php } ?>
       <?php if (have_posts()) : ?>
-      <?php while (have_posts()) : the_post(); ?>
+      <?php while (have_posts()) : the_post(); if(function_exists('the_ratings')) { the_ratings(); }  ?>
       
       <!-- .post -->
       

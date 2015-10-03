@@ -14,7 +14,7 @@
 				echo json_encode($json);
 				break;
 			 case 'carga_informacion_sitio_turistico':
-				$response = carga_informacion_sitio_turistico($_REQUEST['id_post']);
+				$response = carga_informacion_sitio_turistico($_REQUEST['id_marker']);
 				$json = array();
 				$mydata = unserialize($response);
 				$json[] = array('titulo'=>$mydata['name'], 'descripcion'=>$mydata['description']);

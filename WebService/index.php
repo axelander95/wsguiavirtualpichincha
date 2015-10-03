@@ -9,28 +9,19 @@
 				$array = array('ok' => (int) $response);
 				echo json_encode($array);
 				break;
-			case 'inserta_categoria':
-				$response = inserta_categoria($_REQUEST['descripcion']);
-				$array = array('ok' => (int) $response);
-				echo json_encode($array);
-				break;
-			case 'actualiza_elimina_categoria':
-				$response = actualiza_elimina_categoria($_REQUEST['id_categoria'], $_REQUEST('descripcion'), $_REQUEST['estado']);
-				$array = array('ok' => (int) $response);
-				echo json_encode($array);
-				break;
-			case 'inicia_sesion':
-				$response = inicia_sesion($_REQUEST['nombre_usuario'], $_REQUEST['contrasena']);
+			case 'carga_cantones':
+				$response = carga_cantones($_REQUEST['id_provincia']);
 				echo $response;
 				break;
-			case 'califica_sitio':
-				$response = califica_sitio($_REQUEST['id_sitio_turistico'], $_REQUEST['id_usuario'], $_REQUEST['valor']);
-				$array = array('ok' => (int) $response);
-				echo json_encode($array);
-				break;
-			case 'carga_categorias':
-				$response = carga_categorias();
-				echo $response;
+			case 'carga_marcador_mapa':
+				$response = carga_marcador_mapa();
+				$json = array();
+				foreach($response as $data)
+				{
+					$mydata = unserialize($data);
+					$json[] = array('titulo'=>$mydata['name'], 'descripcion'=>$mydata['description'], 'latitud'=>$mydata['latitude'], 'longitud'=>$mydata['longitude']);
+				}
+				echo json_encode($json);
 				break;
 			default:
 				echo 'Solicitud incorrecta.';
@@ -54,76 +45,13 @@
 			$result = execute_sql ($query);
 			return $result;
 		}
-		function inserta_categoria ($descripcion){
-			$query = 'INSERT INTO tb_categoria (descripcion, estado) VALUES (\'' . $descripcion . '\', 1)';
+		function carga_marcador_mapa () {
+			$query = 'SELECT meta_value FROM tb_postmeta INNER JOIN tb_posts ON tb_posts.ID = tb_postmeta.post_id WHERE meta_key = \'cpm_point\' AND tb_posts.post_status = \'publish\'';
 			$result = execute_sql($query);
-			return $result;
-		}
-		function actualiza_elimina_categoria ($id_categoria, $descripcion, $estado) {
-			$query = 'UPDATE tb_categoria SET descripcion = \'' . $descripcion . '\', estado = ' . $estado . ' WHERE id_categoria = ' . $id_categoria;
-			$result = execute_sql($query);
-			return $result;
-		}
-		function inicia_sesion ($nombre_usuario, $contrasena){
-			$query = 'SELECT * FROM tb_usuario WHERE nombre_usuario = \'' . $nombre_usuario . '\' AND contrasena = \'' . sha1($contrasena) . '\'';
-			$result = execute_sql ($query);
-			$json = array();
+			$data = array();
 			if (mysqli_num_rows($result) > 0)
 				while ($row = mysqli_fetch_assoc($result))
-					$json[] = $row;
-			return json_encode($json);
-		}
-		function califica_sitio ($id_sitio_turistico, $id_usuario, $valor){
-			$query = 'SELECT * FROM tb_calificacion_sitio WHERE id_sitio_turistico = ' . $id_sitio_turistico . ' AND id_usuario = ' . $id_usuario;
-			$select = execute_sql($query);
-			if (mysqli_num_rows($select) > 0)
-				$query = 'UPDATE tb_calificacion_sitio SET valor = ' . $valor . ' WHERE id_sitio_turistico = ' . $id_sitio_turistico . ' AND 
-				id_usuario = ' . $id_usuario;
-			else 
-				$query = 'INSERT INTO tb_calificacion_sitio (id_sitio_turistico, id_usuario, valor) VALUES (' . $id_sitio_turistico . ', ' . $id_usuario . ',
-				' . $valor . ')';
-			$result = execute_sql($query);
-			return $result;
-		}
-		function carga_paises () {
-			$query = 'SELECT * FROM tb_pais WHERE estado = 1';
-			$result = execute_sql($query);
-			$json = array();
-			if (mysqli_num_rows($result) > 0)
-				while ($row = mysqli_fetch_assoc($result))
-					$json [] = $row;
-			return json_encode($json);
-		}
-		function carga_provincias ($id_pais){
-			$query = 'SELECT * FROM tb_provincia WHERE id_pais = ' . $id_pais . ' AND estado = 1';
-			$result = execute_sql($query);
-			$json = array();
-			if (mysqli_num_rows($result) > 0)
-				while ($row = mysqli_fetch_assoc($result))
-					$json [] = $row;
-			return json_encode($json);
-		}
-		function carga_cantones ($id_provincia){
-			$query = 'SELECT * FROM tb_canton WHERE estado = 1 AND id_provincia = ' . $id_provincia;
-			$result = execute_sql($query);
-			$json = array();
-			if (mysqli_num_rows($result) > 0)
-				while ($row = mysqli_fetch_assoc($result))
-					$json [] = $row;
-			return json_encode($json);
-		}
-		function carga_sitio_turistico ($id_sitio_turistico) {
-		}
-		function carga_sitios_turisticos_por_categoria ($id_categoria) {
-			$query = 'SELECT * FROM tb_sitio_turistico WHERE estado = 1 AND id_categoria = ' . $id_categoria;
-			$result = execute_sql($query);
-			$json = array();
-			if (mysqli_num_rows($result) > 0)
-				while ($row = mysqli_fetch_assoc($result))
-					$json [] = $row;
-			return json_encode($json);
-		}
-		function carga_sitios_turisticos (){
-			
+					$data[] = $row['meta_value'];
+			return $data;
 		}
 ?>

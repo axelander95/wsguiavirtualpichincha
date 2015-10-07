@@ -24,8 +24,14 @@
 			case 'get_markers':
 				get_markers();
 				break;
+			case 'get_markers_by_category':
+				get_markers_by_category($_REQUEST['id_categoria']);
+				break;
 			case 'get_post':
 				get_post($_REQUEST['id_post']);
+				break;
+			case 'comment_post':
+				comment_post($_REQUEST['id_post'], $_REQUEST['username'], $_REQUEST['id_user'], $_REQUEST['comment']);
 				break;
 		}
 	}

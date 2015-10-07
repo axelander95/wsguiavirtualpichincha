@@ -50,8 +50,42 @@
 		boolean_to_json($result);
 	}
 	function get_markers(){
-		$query = 'SELECT meta_value, tb_posts.ID FROM tb_postmeta INNER JOIN tb_posts ON tb_posts.ID = tb_postmeta.post_id WHERE meta_key = \'cpm_point\' AND 
-		post_status = \'publish\'';
+		$query = 'SELECT meta_value, tb_posts.ID, tb_terms.term_id FROM tb_postmeta INNER JOIN tb_posts ON tb_posts.ID = tb_postmeta.post_id 
+		INNER JOIN tb_term_relationships ON object_id = tb_posts.ID 
+		INNER JOIN tb_term_taxonomy ON tb_term_taxonomy.term_taxonomy_id = tb_term_relationships.term_taxonomy_id 
+		INNER JOIN tb_terms ON tb_terms.term_id = tb_term_taxonomy.term_id 
+		WHERE meta_key = \'cpm_point\' AND tb_posts.post_status = \'publish\'';
+		$result = execute_sql($query);
+		$meta_value = array();
+		$id = array();
+		$categoria = array();
+		if (mysqli_num_rows($result) > 0){
+			while($row = mysqli_fetch_assoc($result)){
+				$meta_value[] = $row['meta_value'];
+				$id[] = array('id'=>$row['ID']);
+				$categoria[] = array('id_categoria'=>$row['term_id']);
+			}
+		}
+		$serialized = array();
+		$json = array();
+		foreach($meta_value as $value){
+			$fixed_serialized_data = preg_replace_callback ( '!s:(\d+):"(.*?)";!',
+				function($match) {
+					return ($match[1] == strlen($match[2])) ? $match[0] : 's:' . strlen($match[2]) . ':"' . $match[2] . '";';
+				},
+			$value );
+			$serialized = unserialize($fixed_serialized_data);
+			$json[] = array('title'=>$serialized['name'], 'description'=>$serialized['address'], 'latitude'=>$serialized['latitude'], 
+			'longitude'=>$serialized['longitude']);
+		}
+		echo json_encode(array_merge($json, $id, $categoria));
+	}
+	function get_markers_by_category($id_categoria){
+		$query = 'SELECT meta_value, tb_posts.ID FROM tb_postmeta INNER JOIN tb_posts ON tb_posts.ID = tb_postmeta.post_id 
+		INNER JOIN tb_term_relationships ON object_id = tb_posts.ID 
+		INNER JOIN tb_term_taxonomy ON tb_term_taxonomy.term_taxonomy_id = tb_term_relationships.term_taxonomy_id 
+		INNER JOIN tb_terms ON tb_terms.term_id = tb_term_taxonomy.term_id 
+		WHERE meta_key = \'cpm_point\' AND tb_posts.post_status = \'publish\' AND tb_terms.term_id = ' . $id_categoria;
 		$result = execute_sql($query);
 		$meta_value = array();
 		$id = array();
@@ -79,5 +113,12 @@
 		$query = 'SELECT * FROM tb_posts WHERE ID = ' . $id_post . ' AND post_status = \'publish\'';
 		$result = execute_sql($query);
 		result_to_json($result);
+	}
+	function comment_post($id_post, $username, $id_user ,$comment){
+		$query = 'INSERT INTO tb_comments (comment_post_ID, comment_author, comment_date, comment_date_gmt, comment_content, comment_karma, 
+		comment_approved, comment_agent, comment_parent, user_id) VALUES (' . $id_post . ', \'' . $username . '\', NOW(), NOW(), \'' . $comment . '\',
+		0, 1, \'cell phone\', 0, ' . $id_user . ')';
+		$result = execute_sql($query);
+		boolean_to_json($result);
 	}
 ?>

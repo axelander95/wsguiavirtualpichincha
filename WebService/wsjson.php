@@ -4,10 +4,10 @@
 		$metodo = $_REQUEST['metodo'];
 		switch ($metodo) {
 			case 'signup':
-				signup($_REQUEST['username'], $_REQUEST['nicename'], $_REQUEST['email'], $_REQUEST['password']);
+				signup($_REQUEST['username'], $_REQUEST['username'], $_REQUEST['email'], $_REQUEST['password']);
 				break;
 			case 'login':
-				login($_REQUEST['username'], $_REQUEST['password]']);
+				login($_REQUEST['username'], $_REQUEST['password']);
 				break;
 			case 'get_user_by_username':
 				get_user_by_username($_REQUEST['username']);
@@ -27,11 +27,29 @@
 			case 'get_markers_by_category':
 				get_markers_by_category($_REQUEST['id_categoria']);
 				break;
+			case 'add_post':
+				add_post($_REQUEST['id_user'], $_REQUEST['post_title'], $_REQUEST['post_content']);
+				break;
 			case 'get_post':
 				get_post($_REQUEST['id_post']);
 				break;
+			case 'get_comments':
+				get_comments($_REQUEST['id_post']);
+				break;
 			case 'comment_post':
 				comment_post($_REQUEST['id_post'], $_REQUEST['username'], $_REQUEST['id_user'], $_REQUEST['comment']);
+				break;
+			case 'qualify':
+				qualify($_REQUEST['id_usuario'], $_REQUEST['qualification']);
+				break;
+			case 'get_average':
+				get_average();
+				break;
+			case 'upload_image':
+				upload_image($_FILES, $_REQUEST['id_user'], $_REQUEST['id_post']);
+				break;
+			case 'get_image':
+				get_image($_REQUEST['filename']);
 				break;
 		}
 	}
